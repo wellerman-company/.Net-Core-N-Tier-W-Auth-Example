@@ -1,0 +1,117 @@
+﻿
+@{
+    Layout = "";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Diana - Biblioteca - WebApp</title>
+
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="~/plugins/fontawesome-free/css/all.min.css">
+    <!-- icheck bootstrap -->
+    <link rel="stylesheet" href="~/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="~/css/adminlte.css">
+
+
+</head>
+<body class="hold-transition login-page">
+    <div class="login-box">
+
+        <!-- /.login-logo -->
+        <div class="card">
+            <div class="card-body login-card-body">
+                <div class="login-logo">
+                    <a><b>Biblioteca</b>ISTEC</a>
+                </div>
+                <form method="get" enctype="multipart/form-data" asp-controller="Home" asp-action="Login">
+                    <div class="input-group mb-3">
+                        <input type="email" class="form-control" value="admin@biblioteca.com" placeholder="Email" name="email">
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-envelope"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="number" class="form-control" value="36251" placeholder="Número" name="employeeNumber">
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-lock"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <!-- /.col -->
+                        <div class="col-4">
+                            <button type="button" onclick="CheckLogin()" class="btn btn-primary btn-block">Entrar</button>
+                            <button type="submit" asp-controller="Home" asp-action="GoToDashboard" id="BtnSubmitEmployee" hidden></button>
+                        </div>
+                        <!-- /.col -->
+                    </div>
+                </form>
+            </div>
+            <!-- /.login-card-body -->
+        </div>
+    </div>
+    <!-- /.login-box -->
+    <!-- jQuery -->
+    <script src="~/plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="~/js/adminlte.min.js"></script>
+
+    <!-- SWEET ALERT -->
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+
+    <script>
+        function CheckLogin() {
+
+            if ($('[name="email"]').val() == "" || $('[name="employeeNumber"]').val() == "") {
+                swal({
+                    title: "Aviso!",
+                    text: "Todos os campos são obrigatórios!",
+                    icon: "error",
+                });
+            }
+            else {
+                $.ajax({
+                    type: "GET",
+                    url: "/Home/Login",
+                    data: { "email": $('[name="email"]').val(), "num": $('[name="employeeNumber"]').val() },
+                    success: function (response) {
+                        if (response.status == "403") {
+                            swal({
+                                title: "Aviso!",
+                                text: "Informações não estão válidas",
+                                icon: "error",
+                            });
+                        }
+                        else {
+                            $("#BtnSubmitEmployee").click();
+                        }
+
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+
+            }
+
+
+        };
+    </script>
+</body>
+</html>
+

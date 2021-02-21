@@ -1,0 +1,118 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+
+
+@section Styles {
+    <link rel="stylesheet" href="~/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="~/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+
+}
+<div class="row" style="padding-top: 40px;">
+    <div class="col-12">
+       
+        <div class="callout callout-info">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">FILTRO</h3>
+                </div>
+            </div>
+
+            <div class="form-group" style="display: flex;">
+                <div class="custom-control custom-radio" style="margin: 10px;">
+                    <input class="custom-control-input" onclick="FilterTable(true)" checked type="radio" id="customRadio1" name="customRadio">
+                    <label for="customRadio1" class="custom-control-label">Ativos</label>
+                </div>
+                <div class="custom-control custom-radio" style="margin: 10px;">
+                    <input class="custom-control-input" onclick="FilterTable(false)" type="radio" id="customRadio2" name="customRadio">
+                    <label for="customRadio2" class="custom-control-label">Inativos</label>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <div class="card card-navy">
+            <div class="card-header">
+                <h3 class="card-title">Lista de livros</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <table id="example2" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>ISBN</th>
+                            <th>Titulo</th>
+                            <th>País</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var book in ViewBag.Books.Value)
+                        {
+                            <tr onclick="location.href='@(Url.Action("Update", "Book", new { id = book.Id }))'">
+                                <td>@book.Id</td>
+                                <td>@book.ISBN</td>
+                                <td>@book.Title</td>
+                                <td>@book.Country.Name</td>
+
+                                <td>
+
+                                    @if (book.State == true)
+                                    {
+                                        <span class='badge badge-success'>Ativo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class='badge badge-danger'>Inativo</span>
+                                    }
+
+                                </td>
+
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+    </div>
+    <!-- /.col -->
+</div>
+
+@section Scripts {
+    <script src="~/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+
+    <script>
+        $(function () {
+            $('#example2').DataTable();
+        });
+
+        function FilterTable(filter) {
+            $('#example2').dataTable().fnDestroy();
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("FilterTable")",
+                data: { filter: filter },
+                dataType: "json",
+                success: function (data) {
+                    $('#example2').html("");
+                    $('#example2').html(data);
+                    $('#example2').DataTable();
+                },
+                error: function (req, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+    </script>
+}

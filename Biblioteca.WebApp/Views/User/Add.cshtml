@@ -1,0 +1,95 @@
+﻿@{
+    Layout = "_Layout";
+
+}
+
+<div class="row" style="padding-top: 40px;">
+    <div class="col-12">
+        <div class="card card-warning">
+            <div class="card-header">
+                <h3 class="card-title">Adicionar Cliente</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" asp-controller="User" asp-action="AddClient">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label>Nome</label>
+                                <input type="text" class="form-control" name="name" placeholder="...">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label>NIF</label>
+                                <input type="text" class="form-control" name="NIF" placeholder="...">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" class="form-control" name="email" placeholder="...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button type="button" onclick="CheckEmail()" class="btn btn-primary">Adicionar</button>
+                        <button type="submit" id="BtnSubmitClient" class="btn btn-primary" hidden></button>
+                    </div>
+                </form>
+            </div>
+            <!-- /.card-body -->
+        </div>
+
+    </div>
+    
+
+</div>
+
+@section Scripts{
+
+    <script>
+        function CheckEmail() {
+            $.ajax({
+                type: "POST",
+                url: "/User/CheckClient",
+                data: { "email": $('input[name="email"]').val() },
+                success: function (response) {
+                    if (response != "") {
+                        swal({
+                            title: "Aviso!",
+                            text: "Email não está disponível!",
+                            icon: "error",
+                        });
+                    }
+                    else {
+
+                        if ($('input[name="email"]').val() == "" || $('input[name="NIF"]').val() == "" || $('input[name="name"]').val()=="") {
+                            swal({
+                                title: "Aviso!",
+                                text: "Todos os campos são obrigatórios!",
+                                icon: "error",
+                            });
+                        }
+                        else if ($('input[name="NIF"]').val().length > 9) {
+                            swal({
+                                title: "Aviso!",
+                                text: "O NIF só pode conter 9 caracteres!",
+                                icon: "error",
+                            });
+                        }
+                        else {
+                            $("#BtnSubmitClient").click();
+                        }
+                    }
+
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+        };
+    </script>
+}

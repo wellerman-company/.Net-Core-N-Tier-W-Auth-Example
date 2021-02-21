@@ -1,0 +1,73 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="~/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+
+}
+<div class="row" style="padding-top: 40px;">
+    <div class="col-12">
+        <div class="invoice" style="background-color:unset;border:none">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-success">
+                        <div class="card-header">
+                            <h3 class="card-title"><strong>NOTA: </strong>Selecionar um cliente para ver os checkouts respetivos</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body">
+                            <table id="example2" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Nome</th>
+                                        <th>NIF</th>
+                                        <th>Email</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var user in ViewBag.Users.Value)
+                                    {
+                                        <tr onclick="location.href='@(Url.Action("CheckoutUserCheckouts", "Checkout", new { clientId = user.Id }))'">
+                                            <td>@user.Id</td>
+                                            <td>@user.Name</td>
+                                            <td>@user.NIF</td>
+                                            <td>@user.Email</td>
+                                            <td>
+                                                @if (user.State == true)
+                                                {
+
+                                                    <span class='badge bg-success'>Ativo</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class='badge bg-danger'>Inativo</span>
+                                                }
+                                        </td>
+
+
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="~/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+
+    <script>
+        $(function () {
+            $('#example2').DataTable();
+        });
+    </script>
+}

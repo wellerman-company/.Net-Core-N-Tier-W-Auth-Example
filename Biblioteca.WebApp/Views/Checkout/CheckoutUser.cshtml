@@ -1,0 +1,182 @@
+﻿
+@{
+    Layout = "_Layout";
+
+    var nome = ViewBag.ClientName;
+
+    var estado = "A decorrer";
+
+    var checkout = Model;
+
+
+    if (checkout.DeliveryDate != null)
+    {
+        estado = "Encerrado";
+
+    }
+    else if (checkout.ExpectedDate < DateTime.Now)
+    {
+        estado = "Multa aplicada";
+    }
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card card-warning" style="margin-top:20px">
+            <div class="card-header">
+                <div class="card-title">
+                    Checkout #@checkout.Id
+                </div>
+            </div>
+        </div>
+
+
+        <div class="invoice p-3 mb-3">
+            <div class="row">
+                <div class="col-12">
+                    <h4>
+                        <i class="fas fa-book"></i> @nome
+                    </h4>
+                </div>
+            </div>
+            <div class="row invoice-info">
+                <div class="col-sm-4 invoice-col">
+                    <address>
+                        Estado:<strong> @estado </strong><br>
+                        Data Requisição: <strong> @checkout.Date </strong><br>
+                        Data Pagamento: <strong> @checkout.DeliveryDate </strong> <br>
+                        Data Entrega: <strong> @checkout.ExpectedDate </strong><br />
+                    </address>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-12 table-responsive">
+                    <table id="example2" class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Id Livro</th>
+                                <th>Titulo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var checkoutBook in checkout.CheckoutBooks)
+                            {
+                                <tr>
+                                    <td>@checkoutBook.Book.Id</td>
+                                    <td>@checkoutBook.Book.Title</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.col -->
+
+            </div>
+
+            <div class="row">
+                <!-- /.col -->
+                <div class="col-6">
+                    <p class="lead">Detalhes</p>
+
+                    <div class="table-responsive">
+                        <table class="table">
+                            <tr>
+                                <th style="width:50%">Multa:</th>
+                                @if ((checkout.DeliveryDate == null || checkout.DeliveryDate != null) && checkout.ExpectedDate < DateTime.Now)
+                                {
+                                    <td> <span class="badge bg-danger"> @checkout.Tickets[0].Price <i class="fas fa-euro-sign"></i></span></td>
+                                }
+                                else if (checkout.DeliveryDate != null)
+                                {
+                                    <td><span class="badge bg-primary">0 <i class="fas fa-euro-sign"></i></span></td>
+
+                                }
+                                else
+                                {
+                                    <td><span class="badge bg-success"> - - -</span></td>
+                                }
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <!-- /.col -->
+            </div>
+            <!-- /.row -->
+            <div class="row no-print">
+                <div class="col-12">
+
+                    @if (estado != "Encerrado")
+                    {
+                        <button type="button" onclick="UpdateCheckout()" class="btn btn-success float-right">
+                            <i class="far fa-credit-card"></i> Encerrar Checkout
+                        </button>
+                    }
+
+                    @{Html.BeginForm("CreatePDF", "Checkout", new { checkoutId = @checkout.Id }, FormMethod.Post);
+                        {
+                            <button type="submit" class="btn btn-primary float-right" style="margin-right: 5px;">
+                                <i class="fas fa-envelope-square"></i> Download
+                            </button>
+                        }
+                        Html.EndForm();
+                    }
+
+                    <button type="button" id="BtnRefreshPage" onclick="location.href='@(Url.Action("CheckoutUser", "Checkout", new { checkoutId = checkout.Id }))'" hidden></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+
+    <script>
+    function UpdateCheckout() {
+        swal({
+            title: "Aviso!",
+            text: "Tem a certeza que pretende encerrar o checkout ?",
+            type: "warning",
+            closeOnConfirm: false,
+            buttons: true,
+            dangerMode: true
+        }).then(function (isConfirm) {
+            if (!isConfirm) return;
+            $.ajax({
+                url: "/Checkout/SaveCheckout",
+                    type: "POST",
+                    data: {"checkoutId":@checkout.Id},
+                success: function (result) {
+
+                    if (result.status == "200") {
+
+                        swal({
+                            title: "Aviso!",
+                            text: "Checkout atualizado com sucesso",
+                            icon: "success",
+                            closeOnConfirm: false,
+                            buttons: false,
+                            dangerMode: false,
+                            timer:2000
+                        }).then(function () {
+                            $("#BtnRefreshPage").click();
+                        });
+                    }
+                    else {
+                        sweetAlert
+                            ({
+                                title: "Aviso!",
+                                text: "Dados inválidos",
+                                icon: "error"
+                            });
+                    }
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    swal("Erro!", "API EM BAIXO", "error");
+                }
+            });
+        });
+    }
+    </script>
+}
